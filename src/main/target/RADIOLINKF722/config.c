@@ -18,17 +18,21 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define SDIO_CFG_TO_DEV(x) ((x) - 1)
-#define SDIO_DEV_TO_CFG(x) ((x) + 1)
 
-typedef enum {
-    SDIOINVALID = -1,
-    SDIODEV_1 = 0,
-    SDIODEV_2,
-} SDIODevice;
+#include <stdbool.h>
+#include <stdint.h>
 
-#define SDIODEV_COUNT 2
+#include "platform.h"
 
-#if defined(STM32H7) || defined(STM32F7)
-void sdioPinConfigure(void);
-#endif
+#include "fc/fc_msp_box.h"
+#include "io/serial.h"
+#include "drivers/pwm_mapping.h"
+
+void targetConfiguration(void)
+{
+    serialConfigMutable()->portConfigs[findSerialPortIndexByIdentifier(SERIAL_PORT_USART4)].functionMask = FUNCTION_ESCSERIAL;
+    pinioBoxConfigMutable()->permanentId[0] = BOX_PERMANENT_ID_USER1;
+    timerOverridesMutable(timer2id(TIM2))->outputMode = OUTPUT_MODE_MOTORS;
+    timerOverridesMutable(timer2id(TIM3))->outputMode = OUTPUT_MODE_MOTORS;
+    timerOverridesMutable(timer2id(TIM4))->outputMode = OUTPUT_MODE_MOTORS;
+}
